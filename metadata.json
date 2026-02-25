@@ -1,0 +1,5 @@
+{
+  "name": "Fit Code Leaderboard",
+  "description": "Dynamic HYROX-style race results leaderboard with live TV mode and participant details, powered by Google Sheets.",
+  "requestFramePermissions": []
+}
