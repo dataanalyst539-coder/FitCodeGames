@@ -1,4 +1,3 @@
-import axios from 'axios';
 import { Participant, parseTimeToSeconds, formatSecondsToTime, SPREADSHEET_ID } from '../constants';
 
 const API_KEY = (import.meta as any).env.VITE_GOOGLE_SHEETS_API_KEY;
@@ -12,16 +11,30 @@ export async function fetchAllResults(): Promise<Participant[]> {
   try {
     // 1. Get spreadsheet metadata to find all tabs
     const metaUrl = `https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}?key=${API_KEY}`;
-    const metaResponse = await axios.get(metaUrl);
-    const sheets = metaResponse.data.sheets;
+    const metaResponse = await fetch(metaUrl);
+    
+    if (!metaResponse.ok) {
+      const errorData = await metaResponse.json().catch(() => ({}));
+      throw new Error(`Failed to fetch spreadsheet metadata: ${metaResponse.status} ${metaResponse.statusText}. ${JSON.stringify(errorData)}`);
+    }
+    
+    const metaData = await metaResponse.json();
+    const sheets = metaData.sheets;
 
     // 2. Fetch data from each sheet
     const sheetResults = await Promise.all(sheets.map(async (sheet: any) => {
       const title = sheet.properties.title;
       try {
-        const dataUrl = `https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values/${title}!A:Z?key=${API_KEY}`;
-        const dataResponse = await axios.get(dataUrl);
-        const rows = dataResponse.data.values;
+        const dataUrl = `https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values/${encodeURIComponent(title)}!A:Z?key=${API_KEY}`;
+        const dataResponse = await fetch(dataUrl);
+        
+        if (!dataResponse.ok) {
+          console.error(`Error fetching data for sheet "${title}": ${dataResponse.status} ${dataResponse.statusText}`);
+          return [];
+        }
+        
+        const data = await dataResponse.json();
+        const rows = data.values;
 
         if (!rows || rows.length < 1) {
           return [];
@@ -156,6 +169,6 @@ export async function fetchAllResults(): Promise<Participant[]> {
     return allParticipants;
   } catch (error) {
     console.error('Error fetching Google Sheets data:', error);
-    return [];
+    throw error; // Re-throw to allow App.tsx to handle it
   }
 }

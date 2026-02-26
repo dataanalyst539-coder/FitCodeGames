@@ -20,8 +20,8 @@ function AppContent() {
       const data = await fetchAllResults();
       setParticipants(data);
       setError(null);
-    } catch (err) {
-      setError('Failed to load leaderboard data. Please check your API key.');
+    } catch (err: any) {
+      setError(err.message || 'Failed to load leaderboard data. Please check your API key.');
     } finally {
       setLoading(false);
     }
