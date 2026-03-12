@@ -1,6 +1,38 @@
+import { differenceInYears, parse, isValid } from 'date-fns';
 import { Participant, parseTimeToSeconds, formatSecondsToTime, SPREADSHEET_ID } from '../constants';
 
 const API_KEY = (import.meta as any).env.VITE_GOOGLE_SHEETS_API_KEY;
+
+function getBirthDate(birthdateStr: string): Date | null {
+  if (!birthdateStr) return null;
+  
+  const formats = ['MM/dd/yyyy', 'yyyy-MM-dd', 'dd/MM/yyyy', 'MM-dd-yyyy'];
+  for (const fmt of formats) {
+    const parsed = parse(birthdateStr, fmt, new Date());
+    if (isValid(parsed) && parsed.getFullYear() > 1900 && parsed.getFullYear() < new Date().getFullYear()) {
+      return parsed;
+    }
+  }
+
+  const native = new Date(birthdateStr);
+  return !isNaN(native.getTime()) ? native : null;
+}
+
+function calculateAgeGroupFromAge(age: number): string {
+  if (age < 18) return 'Under 18';
+  if (age <= 29) return '18-29';
+  if (age <= 39) return '30-39';
+  if (age <= 49) return '40-49';
+  if (age <= 59) return '50-59';
+  return '60+';
+}
+
+function calculateAgeGroup(birthdateStr: string): string {
+  const birthDate = getBirthDate(birthdateStr);
+  if (!birthDate) return birthdateStr;
+  const age = differenceInYears(new Date(), birthDate);
+  return calculateAgeGroupFromAge(age);
+}
 
 export async function fetchAllResults(): Promise<Participant[]> {
   if (!API_KEY) {
@@ -82,6 +114,7 @@ export async function fetchAllResults(): Promise<Participant[]> {
       const levelIdx = findIndex(['level', 'division', 'category', 'class', 'div', 'intermediate/ advanced', 'intermediate', 'advanced']);
       const genderIdx = findIndex(['gender', 'sex', 'male/female', 'm/f']);
       const ageGroupIdx = findIndex(['age group', 'agegroup', 'age', 'ag']);
+      const birthdateIdx = findIndex(['birthdate', 'dob', 'date of birth', 'birth date']);
       const timeIdx = findIndex(['completion time', 'completion time (min)', 'total time', 'duration', 'result', 'time']);
       const raceIdx = findIndex(['race / workout', 'race', 'workout', 'event']);
       const emailIdx = findIndex(['email', 'e-mail']);
@@ -89,8 +122,9 @@ export async function fetchAllResults(): Promise<Participant[]> {
 
       const normalizeGender = (val: string): 'Male' | 'Female' => {
         const lower = String(val || '').toLowerCase().trim();
-        if (lower.startsWith('f')) return 'Female';
-        if (lower.startsWith('w')) return 'Female'; // Women
+        // Female indicators: F, Female, Woman, W, VF (Veteran Female)
+        if (lower.includes('f') || lower.startsWith('w')) return 'Female';
+        // Male indicators: M, Male, Man, S (often used for Senior/Sub-master Male in some contexts)
         return 'Male';
       };
 
@@ -115,11 +149,18 @@ export async function fetchAllResults(): Promise<Participant[]> {
           seconds = seconds * 60;
         }
 
+        const rawAgeGroup = row[ageGroupIdx] || '';
+        const birthdateStr = row[birthdateIdx] || '';
+        const birthDate = getBirthDate(birthdateStr);
+        const age = birthDate ? differenceInYears(new Date(), birthDate) : undefined;
+        const finalAgeGroup = age !== undefined ? calculateAgeGroupFromAge(age) : rawAgeGroup;
+
         participants.push({
           name: row[nameIdx] || '',
           level: normalizeLevel(row[levelIdx]),
           gender: normalizeGender(row[genderIdx]),
-          ageGroup: row[ageGroupIdx] || '',
+          ageGroup: finalAgeGroup,
+          age: age,
           completionTime: rawTime.includes(':') ? rawTime : formatSecondsToTime(seconds),
           race: row[raceIdx] || title,
           email: row[emailIdx] || '',

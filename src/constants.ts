@@ -24,6 +24,7 @@ export interface Participant {
   email: string;
   phone: string;
   tabName: string;
+  age?: number;
   // Optional fields
   arriveTime?: string;
   heatTime?: string;

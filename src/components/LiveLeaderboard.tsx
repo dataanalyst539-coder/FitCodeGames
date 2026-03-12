@@ -220,7 +220,7 @@ export default function LiveLeaderboard({ participants }: LiveLeaderboardProps) 
                         <div className="flex gap-4 sm:gap-6">
                           <span className="text-xs sm:text-lg font-bold uppercase tracking-widest text-white/40 flex items-center gap-2">
                             <Users className="w-4 h-4 sm:w-5 sm:h-5 text-maroon" />
-                            {p.ageGroup}
+                            {p.age ? `${p.age} (${p.ageGroup})` : p.ageGroup}
                           </span>
                           <span className="text-xs sm:text-lg font-bold uppercase tracking-widest text-white/40 flex items-center gap-2">
                             <Calendar className="w-4 h-4 sm:w-5 sm:h-5 text-maroon" />

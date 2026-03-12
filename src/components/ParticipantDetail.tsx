@@ -163,6 +163,9 @@ export default function ParticipantDetail({ participants }: ParticipantDetailPro
                 <h3 className="text-sm font-black uppercase tracking-widest text-maroon border-b border-maroon/20 pb-2">Participant</h3>
                 <div className="space-y-2">
                   <div className="flex justify-between text-sm"><span className="text-white/40 font-bold uppercase">Name</span><span className="font-black uppercase">{currentRace.name}</span></div>
+                  {currentRace.age && (
+                    <div className="flex justify-between text-sm"><span className="text-white/40 font-bold uppercase">Age</span><span className="font-black uppercase">{currentRace.age}</span></div>
+                  )}
                   <div className="flex justify-between text-sm"><span className="text-white/40 font-bold uppercase">Age Group</span><span className="font-black uppercase">{currentRace.ageGroup}</span></div>
                   <div className="flex justify-between text-sm"><span className="text-white/40 font-bold uppercase">Gender</span><span className="font-black uppercase">{currentRace.gender}</span></div>
                 </div>
@@ -220,6 +223,12 @@ export default function ParticipantDetail({ participants }: ParticipantDetailPro
                     <span style={{ fontSize: '14px', fontWeight: '700', textTransform: 'uppercase', color: 'rgba(255, 255, 255, 0.4)' }}>Name</span>
                     <span style={{ fontSize: '14px', fontWeight: '900', textTransform: 'uppercase', color: '#FFFFFF' }}>{currentRace.name}</span>
                   </div>
+                  {currentRace.age && (
+                    <div style={{ display: 'flex', justifyContent: 'space-between', paddingBottom: '8px', borderBottom: '1px solid rgba(255, 255, 255, 0.05)' }}>
+                      <span style={{ fontSize: '14px', fontWeight: '700', textTransform: 'uppercase', color: 'rgba(255, 255, 255, 0.4)' }}>Age</span>
+                      <span style={{ fontSize: '14px', fontWeight: '900', textTransform: 'uppercase', color: '#FFFFFF' }}>{currentRace.age}</span>
+                    </div>
+                  )}
                   <div style={{ display: 'flex', justifyContent: 'space-between', paddingBottom: '8px', borderBottom: '1px solid rgba(255, 255, 255, 0.05)' }}>
                     <span style={{ fontSize: '14px', fontWeight: '700', textTransform: 'uppercase', color: 'rgba(255, 255, 255, 0.4)' }}>Age Group</span>
                     <span style={{ fontSize: '14px', fontWeight: '900', textTransform: 'uppercase', color: '#FFFFFF' }}>{currentRace.ageGroup}</span>

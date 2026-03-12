@@ -168,8 +168,8 @@ export default function Leaderboard({ participants }: LeaderboardProps) {
                   </span>
                 </div>
                 <div>
-                  <div className="text-[10px] font-black uppercase tracking-widest text-white/20 mb-1">Age Group</div>
-                  <div className="text-xs font-bold text-white/60">{p.ageGroup}</div>
+                  <div className="text-[10px] font-black uppercase tracking-widest text-white/20 mb-1">Age</div>
+                  <div className="text-xs font-bold text-white/60">{p.age ? `${p.age} (${p.ageGroup})` : p.ageGroup}</div>
                 </div>
               </div>
             </div>
@@ -216,7 +216,9 @@ export default function Leaderboard({ participants }: LeaderboardProps) {
                       {p.gender}
                     </span>
                   </td>
-                  <td className="px-6 lg:px-8 py-6 text-sm font-bold text-white/60">{p.ageGroup}</td>
+                  <td className="px-6 lg:px-8 py-6 text-sm font-bold text-white/60">
+                    {p.age ? `${p.age} (${p.ageGroup})` : p.ageGroup}
+                  </td>
                   <td className="px-6 lg:px-8 py-6 font-mono text-xl font-black text-white">{p.completionTime}</td>
                   <td className="px-6 lg:px-8 py-6 text-right">
                     <Link
